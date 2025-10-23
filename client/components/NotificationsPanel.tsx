@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { X, CheckCheck } from "lucide-react";
 import { useNotifications } from "@/context/NotificationContext";
 
@@ -52,10 +53,10 @@ export default function NotificationsPanel({ isOpen, onClose }: NotificationsPan
     return date.toLocaleDateString();
   };
 
-  return (
+  const content = (
     <>
-      <div className="fixed inset-0 z-40 bg-black/20" onClick={onClose} />
-      <div className="fixed right-0 top-[72px] z-50 w-full md:w-96 max-h-[calc(100vh-72px)] bg-white shadow-lg flex flex-col rounded-b-lg md:rounded-none">
+      <div className="fixed inset-0 z-[9998] bg-black/20" onClick={onClose} />
+      <div className="fixed right-0 top-[72px] z-[9999] w-full md:w-96 max-h-[calc(100vh-72px)] bg-white shadow-lg flex flex-col rounded-b-lg md:rounded-none">
         <div className="flex items-center justify-between px-4 py-3 border-b">
           <h2 className="text-base md:text-lg font-semibold text-text-primary">Notifications</h2>
           <div className="flex items-center gap-2">
@@ -126,4 +127,6 @@ export default function NotificationsPanel({ isOpen, onClose }: NotificationsPan
       </div>
     </>
   );
+
+  return createPortal(content, document.body);
 }

@@ -6,8 +6,8 @@ const NotFound = () => {
 
   return (
     <Layout>
-      <div className="flex-1 flex items-start justify-center bg-gradient-to-b from-purple-50 to-white p-4 md:p-6">
-        <div className="w-full max-w-4xl bg-gradient-to-r from-white via-indigo-50 to-white rounded-xl shadow-xl p-4 md:p-8 relative overflow-hidden">
+      <div className="flex-1 flex items-start justify-center bg-gradient-to-b from-purple-50 to-white p-4 md:p-6 relative z-0 overflow-visible">
+        <div className="w-full max-w-4xl bg-gradient-to-r from-white via-indigo-50 to-white rounded-xl shadow-xl p-4 md:p-8 relative overflow-visible">
           <div className="absolute right-4 md:right-8 top-4 md:top-8 w-24 md:w-36 h-24 md:h-36 rounded-full bg-gradient-to-br from-yellow-300 to-pink-300 blur-sm opacity-30 pointer-events-none" />
 
           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
