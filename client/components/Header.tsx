@@ -1,25 +1,35 @@
 import { Bell, Headphones } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function Header() {
   return (
     <header className="w-full h-[72px] px-8 flex items-center justify-between bg-white/70 shadow-[0_4px_8px_0_rgba(54,89,226,0.08)] backdrop-blur-sm">
-      <div className="flex items-center">
+      <Link to="/" className="flex items-center hover:opacity-70 transition-opacity">
         <div className="border-2 border-black px-3 py-1">
           <span className="text-sm font-bold">LOGO</span>
         </div>
-      </div>
+      </Link>
 
       <div className="flex items-center gap-5">
         <div className="flex items-center gap-4">
-          <button className="hover:opacity-70 transition-opacity">
+          <Link
+            to="/support"
+            className="hover:opacity-70 transition-opacity flex items-center justify-center"
+          >
             <Headphones className="w-5 h-5 text-[#0B1331]" />
-          </button>
-          <button className="hover:opacity-70 transition-opacity">
+          </Link>
+          <Link
+            to="/notifications"
+            className="hover:opacity-70 transition-opacity flex items-center justify-center"
+          >
             <Bell className="w-5 h-5 text-[#0B1331]" />
-          </button>
+          </Link>
         </div>
 
-        <div className="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center">
+        <Link
+          to="/account"
+          className="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center hover:opacity-70 transition-opacity"
+        >
           <svg
             width="24"
             height="24"
@@ -41,7 +51,7 @@ export default function Header() {
               strokeWidth="1.5"
             />
           </svg>
-        </div>
+        </Link>
       </div>
     </header>
   );
