@@ -25,21 +25,21 @@ export default function AddUserModal({ isOpen, onClose, onAdd }: AddUserModalPro
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-end">
+    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-end md:justify-end">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      
-      <div className="relative w-[623px] h-full bg-white shadow-lg flex flex-col">
-        <div className="flex items-center justify-between px-5 py-4 border-b shadow-[0_4px_8px_0_rgba(54,89,226,0.08),0_0_12px_0_rgba(54,89,226,0.12)]">
+
+      <div className="relative w-full md:w-[623px] h-auto md:h-full max-h-[90vh] md:max-h-full bg-white shadow-lg flex flex-col rounded-t-lg md:rounded-none">
+        <div className="flex items-center justify-between px-4 md:px-5 py-4 border-b shadow-[0_4px_8px_0_rgba(54,89,226,0.08),0_0_12px_0_rgba(54,89,226,0.12)]">
           <h2 className="text-lg font-semibold text-text-primary">Add User</h2>
           <button
             onClick={onClose}
-            className="hover:opacity-70 transition-opacity"
+            className="hover:opacity-70 transition-opacity flex-shrink-0"
           >
             <X className="w-5 h-5 text-[#97A1B2]" />
           </button>
         </div>
 
-        <div className="flex-1 p-6 flex flex-col gap-3 overflow-y-auto">
+        <div className="flex-1 p-4 md:p-6 flex flex-col gap-3 overflow-y-auto">
           <div className="flex flex-col gap-1">
             <label className="text-xs text-text-secondary">Name of the user</label>
             <input
@@ -51,7 +51,7 @@ export default function AddUserModal({ isOpen, onClose, onAdd }: AddUserModalPro
             />
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-col md:flex-row gap-3">
             <div className="flex-1 flex flex-col gap-1">
               <label className="text-xs text-text-secondary">E-mail</label>
               <input
@@ -76,7 +76,7 @@ export default function AddUserModal({ isOpen, onClose, onAdd }: AddUserModalPro
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-brand-75">
+        <div className="flex items-center justify-end gap-3 px-4 md:px-6 py-4 border-t border-brand-75 flex-shrink-0">
           <button
             onClick={onClose}
             className="h-10 px-4 rounded-md bg-brand-50 text-sm text-primary hover:bg-brand-75 transition-colors"

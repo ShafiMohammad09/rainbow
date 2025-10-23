@@ -1,34 +1,47 @@
+import { useState } from "react";
 import { Bell, Headphones } from "lucide-react";
 import { Link } from "react-router-dom";
+import NotificationsPanel from "./NotificationsPanel";
+import { useNotifications } from "@/context/NotificationContext";
 
 export default function Header() {
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const { unreadCount } = useNotifications();
+
   return (
-    <header className="w-full h-[72px] px-8 flex items-center justify-between bg-white/70 shadow-[0_4px_8px_0_rgba(54,89,226,0.08)] backdrop-blur-sm">
-      <Link to="/" className="flex items-center hover:opacity-70 transition-opacity">
-        <div className="border-2 border-black px-3 py-1">
-          <span className="text-sm font-bold">LOGO</span>
-        </div>
+    <header className="w-full h-[72px] px-4 md:px-8 flex items-center justify-between bg-white/70 shadow-[0_4px_8px_0_rgba(54,89,226,0.08)] backdrop-blur-sm">
+      <Link to="/" className="flex items-center hover:opacity-70 transition-opacity flex-shrink-0">
+        <img
+          src="https://media.licdn.com/dms/image/sync/v2/D5627AQEExz9IHVAMhQ/articleshare-shrink_800/B56Zk9_A22H8AI-/0/1757681553241?e=2147483647&v=beta&t=EGoaQOgT6pB0JcjJXFx9Si9eDM5DcyQ-T5o27C5CzCw"
+          alt="Logo"
+          className="h-12 md:h-14 w-auto object-contain"
+        />
       </Link>
 
-      <div className="flex items-center gap-5">
-        <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 md:gap-5">
+        <div className="flex items-center gap-2 md:gap-4">
           <Link
             to="/support"
             className="hover:opacity-70 transition-opacity flex items-center justify-center"
           >
-            <Headphones className="w-5 h-5 text-[#0B1331]" />
+            <Headphones className="w-4 h-4 md:w-5 md:h-5 text-[#0B1331]" />
           </Link>
-          <Link
-            to="/notifications"
-            className="hover:opacity-70 transition-opacity flex items-center justify-center"
+          <button
+            onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+            className="hover:opacity-70 transition-opacity flex items-center justify-center relative"
           >
-            <Bell className="w-5 h-5 text-[#0B1331]" />
-          </Link>
+            <Bell className="w-4 h-4 md:w-5 md:h-5 text-[#0B1331]" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-red-500 text-white text-[10px] md:text-xs rounded-full flex items-center justify-center font-semibold">
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
+          </button>
         </div>
 
         <Link
           to="/account"
-          className="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center hover:opacity-70 transition-opacity"
+          className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-brand-50 flex items-center justify-center hover:opacity-70 transition-opacity flex-shrink-0"
         >
           <svg
             width="24"
@@ -53,6 +66,8 @@ export default function Header() {
           </svg>
         </Link>
       </div>
+
+      <NotificationsPanel isOpen={isNotificationsOpen} onClose={() => setIsNotificationsOpen(false)} />
     </header>
   );
 }

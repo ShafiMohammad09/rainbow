@@ -1,19 +1,21 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import Header from "@/components/Header";
 import { Copy, Pencil, ArrowLeft, Save } from "lucide-react";
 import { useUsers } from "@/context/UserContext";
-import { useToast } from "@/hooks/use-toast";
+import { useNotifications } from "@/context/NotificationContext";
 
 export default function UserProfile() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { getUserById, updateUser } = useUsers();
-  const { toast } = useToast();
-  
+  const { addNotification } = useNotifications();
+
   const userId = parseInt(id || "0");
   const user = getUserById(userId);
-  
+  const userName = user?.name || "User";
+
   const [activeTab, setActiveTab] = useState("basic");
   const [isEditingBasic, setIsEditingBasic] = useState(false);
   const [isEditingEducation, setIsEditingEducation] = useState(false);
@@ -119,9 +121,14 @@ export default function UserProfile() {
     });
     setIsEditingBasic(false);
     loadUserData();
-    toast({
-      title: "Success",
-      description: "Basic information updated successfully",
+    toast.success("Basic Information Updated ✏️", {
+      description: `${userName}'s basic information has been saved successfully`,
+      duration: 3000,
+    });
+    addNotification({
+      title: "Basic Information Updated ✏️",
+      message: `${userName}'s basic information has been saved successfully`,
+      type: "success",
     });
   };
 
@@ -136,9 +143,14 @@ export default function UserProfile() {
     });
     setIsEditingEducation(false);
     loadUserData();
-    toast({
-      title: "Success",
-      description: "Education & skills updated successfully",
+    toast.success("Education & Skills Updated 🎓", {
+      description: `${userName}'s education and skills have been saved successfully`,
+      duration: 3000,
+    });
+    addNotification({
+      title: "Education & Skills Updated 🎓",
+      message: `${userName}'s education and skills have been saved successfully`,
+      type: "success",
     });
   };
 
@@ -153,9 +165,14 @@ export default function UserProfile() {
     });
     setIsEditingExperience(false);
     loadUserData();
-    toast({
-      title: "Success",
-      description: "Experience updated successfully",
+    toast.success("Experience Updated 💼", {
+      description: `${userName}'s work experience has been saved successfully`,
+      duration: 3000,
+    });
+    addNotification({
+      title: "Experience Updated 💼",
+      message: `${userName}'s work experience has been saved successfully`,
+      type: "success",
     });
   };
 
@@ -182,8 +199,8 @@ export default function UserProfile() {
     <div className="min-h-screen bg-white flex flex-col">
       <Header />
       
-      <main className="flex-1 flex flex-col items-center pt-6 pb-12">
-        <div className="w-full max-w-[1216px] px-4">
+      <main className="flex-1 flex flex-col items-center pt-4 md:pt-6 pb-8 md:pb-12">
+        <div className="w-full max-w-[1216px] px-4 md:px-4">
           <button
             onClick={() => navigate("/")}
             className="flex items-center gap-2 mb-4 text-sm text-text-secondary hover:text-primary transition-colors"
@@ -192,36 +209,36 @@ export default function UserProfile() {
             Back to Users
           </button>
 
-          <div className="relative bg-white rounded-md shadow-[0_2px_12px_0_rgba(54,89,226,0.12)] p-8 mb-6">
-            <div className="relative flex items-center gap-20">
-              <div className="relative">
-                <div className="w-[165px] h-[165px] rounded-full bg-brand-50 border-4 border-white shadow-[0_2px_12px_0_rgba(54,89,226,0.12)] flex items-center justify-center">
-                  <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
+          <div className="relative bg-white rounded-md shadow-[0_2px_12px_0_rgba(54,89,226,0.12)] p-4 md:p-8 mb-6">
+            <div className="relative flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-20">
+              <div className="relative flex-shrink-0">
+                <div className="w-[120px] h-[120px] md:w-[165px] md:h-[165px] rounded-full bg-brand-50 border-4 border-white shadow-[0_2px_12px_0_rgba(54,89,226,0.12)] flex items-center justify-center">
+                  <svg width="60" height="60" viewBox="0 0 72 72" fill="none" className="md:w-[72px] md:h-[72px]">
                     <path d="M19.7327 46.4447C15.4884 48.972 4.36009 54.1323 11.138 60.5897C14.4489 63.744 18.1365 66 22.7726 66H49.2274C53.8635 66 57.5511 63.744 60.862 60.5897C67.6399 54.1323 56.5116 48.972 52.2673 46.4447C42.3144 40.5184 29.6856 40.5184 19.7327 46.4447Z" fill="#F0EBFF" stroke="#6834FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     <path d="M49.5 19.5C49.5 26.9558 43.4558 33 36 33C28.5442 33 22.5 26.9558 22.5 19.5C22.5 12.0441 28.5442 5.99998 36 5.99998C43.4558 5.99998 49.5 12.0441 49.5 19.5Z" stroke="#6834FF" strokeWidth="2"/>
                   </svg>
                 </div>
               </div>
 
-              <div className="flex-1 flex flex-col gap-1">
-                <h1 className="text-[28px] font-semibold text-text-primary leading-tight">
+              <div className="flex-1 flex flex-col gap-1 text-center md:text-left">
+                <h1 className="text-xl md:text-[28px] font-semibold text-text-primary leading-tight">
                   {user.name}
                 </h1>
-                <div className="flex flex-col gap-3 mt-2">
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-lg text-text-secondary">{user.email}</span>
-                    <Copy className="w-6 h-6 text-[#97A1B2] cursor-pointer hover:opacity-70" />
+                <div className="flex flex-col gap-2 md:gap-3 mt-2">
+                  <div className="flex items-center gap-2.5 justify-center md:justify-start flex-wrap">
+                    <span className="text-sm md:text-lg text-text-secondary break-all">{user.email}</span>
+                    <Copy className="w-5 h-5 md:w-6 md:h-6 text-[#97A1B2] cursor-pointer hover:opacity-70 flex-shrink-0" />
                   </div>
-                  <span className="text-lg text-text-secondary">{user.contact || "+91 " + (user.basicInfo?.phoneNumber || "")}</span>
+                  <span className="text-sm md:text-lg text-text-secondary break-all">{user.contact || "+91 " + (user.basicInfo?.phoneNumber || "")}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="flex gap-3 mb-6">
+          <div className="flex gap-2 md:gap-3 mb-6 overflow-x-auto pb-2">
             <button
               onClick={() => handleTabChange("basic")}
-              className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-colors ${
+              className={`px-3 md:px-4 py-1.5 text-xs md:text-sm font-semibold rounded-md transition-colors whitespace-nowrap flex-shrink-0 ${
                 activeTab === "basic"
                   ? "bg-brand-50 text-primary"
                   : "bg-gray-50 text-text-secondary hover:bg-gray-100"
@@ -231,17 +248,17 @@ export default function UserProfile() {
             </button>
             <button
               onClick={() => handleTabChange("education")}
-              className={`px-4 py-1.5 text-sm rounded-md transition-colors ${
+              className={`px-3 md:px-4 py-1.5 text-xs md:text-sm rounded-md transition-colors whitespace-nowrap flex-shrink-0 ${
                 activeTab === "education"
                   ? "bg-brand-50 text-primary font-semibold"
                   : "bg-gray-50 text-text-secondary hover:bg-gray-100"
               }`}
             >
-              Education & skills
+              Education
             </button>
             <button
               onClick={() => handleTabChange("experience")}
-              className={`px-4 py-1.5 text-sm rounded-md transition-colors ${
+              className={`px-3 md:px-4 py-1.5 text-xs md:text-sm rounded-md transition-colors whitespace-nowrap flex-shrink-0 ${
                 activeTab === "experience"
                   ? "bg-brand-50 text-primary font-semibold"
                   : "bg-gray-50 text-text-secondary hover:bg-gray-100"
@@ -252,19 +269,19 @@ export default function UserProfile() {
           </div>
 
           {activeTab === "basic" && (
-            <div className="bg-white rounded-md shadow-[0_2px_12px_0_rgba(54,89,226,0.12)] p-4">
+            <div className="bg-white rounded-md shadow-[0_2px_12px_0_rgba(54,89,226,0.12)] p-4 md:p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-text-primary">Basic Details</h2>
-                <button 
+                <h2 className="text-base md:text-lg font-semibold text-text-primary">Basic Details</h2>
+                <button
                   onClick={() => setIsEditingBasic(true)}
                   disabled={isEditingBasic}
-                  className="w-8 h-8 flex items-center justify-center rounded-md bg-brand-50 hover:bg-brand-75 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-8 h-8 flex items-center justify-center rounded-md bg-brand-50 hover:bg-brand-75 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                 >
                   <Pencil className="w-3.5 h-3.5 text-primary" />
                 </button>
               </div>
 
-              <div className="grid grid-cols-3 gap-6 mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-4">
                 <div className="flex flex-col gap-1">
                   <label className="text-xs text-text-secondary">First name</label>
                   <input
@@ -300,7 +317,7 @@ export default function UserProfile() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-6 mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-4">
                 <div className="flex flex-col gap-1">
                   <label className="text-xs text-text-secondary">Year of birth</label>
                   <input
@@ -336,7 +353,7 @@ export default function UserProfile() {
                 </div>
               </div>
 
-              <div className="flex gap-6 mb-4">
+              <div className="flex flex-col lg:flex-row gap-4 md:gap-6 mb-4">
                 <div className="flex-1 flex flex-col gap-1">
                   <label className="text-xs text-text-secondary">Address</label>
                   <textarea
@@ -347,8 +364,8 @@ export default function UserProfile() {
                     className="flex-1 p-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-primary disabled:bg-gray-50 disabled:text-text-secondary enabled:bg-white resize-none min-h-[120px]"
                   />
                 </div>
-                <div className="flex-1 flex flex-col gap-4">
-                  <div className="grid grid-cols-2 gap-6">
+                <div className="flex-1 flex flex-col gap-3 md:gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
                     <div className="flex flex-col gap-1">
                       <label className="text-xs text-text-secondary">Pincode</label>
                       <input
@@ -419,19 +436,19 @@ export default function UserProfile() {
 
           {activeTab === "education" && (
             <div className="flex flex-col gap-6">
-              <div className="bg-white rounded-md shadow-[0_2px_12px_0_rgba(54,89,226,0.12)] p-4">
+              <div className="bg-white rounded-md shadow-[0_2px_12px_0_rgba(54,89,226,0.12)] p-4 md:p-6">
                 <div className="flex items-center justify-between mb-2">
-                  <h2 className="text-lg font-semibold text-text-primary">Education Details</h2>
-                  <button 
+                  <h2 className="text-base md:text-lg font-semibold text-text-primary">Education Details</h2>
+                  <button
                     onClick={() => setIsEditingEducation(true)}
                     disabled={isEditingEducation}
-                    className="w-8 h-8 flex items-center justify-center rounded-md bg-brand-50 hover:bg-brand-75 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-8 h-8 flex items-center justify-center rounded-md bg-brand-50 hover:bg-brand-75 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                   >
                     <Pencil className="w-3.5 h-3.5 text-primary" />
                   </button>
                 </div>
 
-                <div className="flex gap-6 mb-4">
+                <div className="flex flex-col md:flex-row gap-3 md:gap-6 mb-4">
                   <div className="flex-1 flex flex-col gap-1">
                     <label className="text-xs text-text-secondary">School / College</label>
                     <input
@@ -456,7 +473,7 @@ export default function UserProfile() {
                   </div>
                 </div>
 
-                <div className="flex gap-6 mb-4">
+                <div className="flex flex-col md:flex-row gap-3 md:gap-6 mb-4">
                   <div className="flex-1 flex flex-col gap-1">
                     <label className="text-xs text-text-secondary">Course</label>
                     <input
@@ -468,7 +485,7 @@ export default function UserProfile() {
                       className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-primary disabled:bg-gray-50 disabled:text-text-secondary enabled:bg-white"
                     />
                   </div>
-                  <div className="w-[259px] flex flex-col gap-1">
+                  <div className="flex-1 md:w-[259px] flex flex-col gap-1">
                     <label className="text-xs text-text-secondary">Year of completion</label>
                     <input
                       type="text"
@@ -479,7 +496,7 @@ export default function UserProfile() {
                       className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-primary disabled:bg-gray-50 disabled:text-text-secondary enabled:bg-white"
                     />
                   </div>
-                  <div className="w-[259px] flex flex-col gap-1">
+                  <div className="flex-1 md:w-[259px] flex flex-col gap-1">
                     <label className="text-xs text-text-secondary">Grade</label>
                     <input
                       type="text"
@@ -493,12 +510,12 @@ export default function UserProfile() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-md shadow-[0_2px_12px_0_rgba(54,89,226,0.12)] p-4">
+              <div className="bg-white rounded-md shadow-[0_2px_12px_0_rgba(54,89,226,0.12)] p-4 md:p-6">
                 <div className="flex items-center justify-between mb-2">
-                  <h2 className="text-lg font-semibold text-text-primary">Skills & Projects</h2>
+                  <h2 className="text-base md:text-lg font-semibold text-text-primary">Skills & Projects</h2>
                 </div>
 
-                <div className="flex gap-6">
+                <div className="flex flex-col md:flex-row gap-3 md:gap-6">
                   <div className="flex-1 flex flex-col gap-1">
                     <label className="text-xs text-text-secondary">Skills</label>
                     <textarea
@@ -544,13 +561,13 @@ export default function UserProfile() {
 
           {activeTab === "experience" && (
             <div className="flex flex-col gap-6">
-              <div className="bg-white rounded-md shadow-[0_2px_12px_0_rgba(54,89,226,0.12)] p-4">
+              <div className="bg-white rounded-md shadow-[0_2px_12px_0_rgba(54,89,226,0.12)] p-4 md:p-6">
                 <div className="flex items-center justify-between mb-2">
-                  <h2 className="text-lg font-semibold text-text-primary">Work Experience</h2>
-                  <button 
+                  <h2 className="text-base md:text-lg font-semibold text-text-primary">Work Experience</h2>
+                  <button
                     onClick={() => setIsEditingExperience(true)}
                     disabled={isEditingExperience}
-                    className="w-8 h-8 flex items-center justify-center rounded-md bg-brand-50 hover:bg-brand-75 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-8 h-8 flex items-center justify-center rounded-md bg-brand-50 hover:bg-brand-75 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                   >
                     <Pencil className="w-3.5 h-3.5 text-primary" />
                   </button>
@@ -572,10 +589,10 @@ export default function UserProfile() {
                       </div>
 
                       <div className="flex items-start gap-0">
-                        <div className="flex items-center justify-center w-7 h-16">
+                        <div className="hidden md:flex items-center justify-center w-7 h-16">
                           <div className="w-px h-full bg-[#B9C0CB]" />
                         </div>
-                        <div className="flex-1 flex gap-6">
+                        <div className="flex-1 flex flex-col md:flex-row gap-3 md:gap-6">
                           <div className="flex-1 flex flex-col gap-1">
                             <label className="text-xs text-text-secondary">Sub-domain</label>
                             <input
@@ -587,7 +604,7 @@ export default function UserProfile() {
                               className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-primary disabled:bg-gray-50 disabled:text-text-secondary enabled:bg-white"
                             />
                           </div>
-                          <div className="w-[348px] flex flex-col gap-1">
+                          <div className="flex-1 md:w-[348px] flex flex-col gap-1">
                             <label className="text-xs text-text-secondary">Experience</label>
                             <input
                               type="text"
@@ -605,10 +622,10 @@ export default function UserProfile() {
                 </div>
               </div>
 
-              <div className="flex gap-6">
-                <div className="flex-1 bg-white rounded-md shadow-[0_2px_12px_0_rgba(54,89,226,0.12)] p-4">
+              <div className="flex flex-col md:flex-row gap-4 md:gap-6">
+                <div className="flex-1 bg-white rounded-md shadow-[0_2px_12px_0_rgba(54,89,226,0.12)] p-4 md:p-6">
                   <div className="flex items-center justify-between mb-2">
-                    <h2 className="text-lg font-semibold text-text-primary">LinkedIn</h2>
+                    <h2 className="text-base md:text-lg font-semibold text-text-primary">LinkedIn</h2>
                   </div>
 
                   <div className="flex flex-col gap-1">
@@ -624,9 +641,9 @@ export default function UserProfile() {
                   </div>
                 </div>
 
-                <div className="flex-1 bg-white rounded-md shadow-[0_2px_12px_0_rgba(54,89,226,0.12)] p-4">
+                <div className="flex-1 bg-white rounded-md shadow-[0_2px_12px_0_rgba(54,89,226,0.12)] p-4 md:p-6">
                   <div className="flex items-center justify-between mb-2">
-                    <h2 className="text-lg font-semibold text-text-primary">Resume</h2>
+                    <h2 className="text-base md:text-lg font-semibold text-text-primary">Resume</h2>
                   </div>
 
                   <div className="flex flex-col gap-1">
