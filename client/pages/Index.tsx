@@ -5,15 +5,18 @@ import UsersTable from "@/components/UsersTable";
 import AddUserModal from "@/components/AddUserModal";
 import { useUsers } from "@/context/UserContext";
 import { useNotifications } from "@/context/NotificationContext";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Index() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isWelcomeShown, setIsWelcomeShown] = useState(false);
-  const { users, addUser, deleteUser } = useUsers();
+  const { users, addUser, deleteUser, loading, error } = useUsers();
   const { addNotification } = useNotifications();
   const [previousUserCount, setPreviousUserCount] = useState(users.length);
 
   useEffect(() => {
+    if (loading || error) return;
+
     if (!isWelcomeShown) {
       toast.success("Welcome! 👋", {
         description: "You have " + users.length + " users in the system",
@@ -52,7 +55,7 @@ export default function Index() {
     }
 
     setPreviousUserCount(users.length);
-  }, [users.length, isWelcomeShown, addNotification]);
+  }, [users.length, isWelcomeShown, addNotification, loading, error]);
 
   const handleAddUser = (user: { name: string; email: string; contact: string }) => {
     addUser({
@@ -67,11 +70,20 @@ export default function Index() {
       <Header />
 
       <main className="flex-1 flex flex-col items-center pt-4 md:pt-6 pb-4 md:pb-6">
-        <UsersTable
-          users={users}
-          onAddUser={() => setIsModalOpen(true)}
-          onDeleteUser={deleteUser}
-        />
+        {loading ? (
+          <div className="w-full max-w-[1216px] mx-auto px-4 space-y-4">
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-64 w-full" />
+          </div>
+        ) : error ? (
+          <div className="text-red-500">{error}</div>
+        ) : (
+          <UsersTable
+            users={users}
+            onAddUser={() => setIsModalOpen(true)}
+            onDeleteUser={deleteUser}
+          />
+        )}
       </main>
 
       <AddUserModal

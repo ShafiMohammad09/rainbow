@@ -39,6 +39,8 @@ export interface User {
 
 interface UserContextType {
   users: User[];
+  loading: boolean;
+  error: string | null;
   addUser: (user: Omit<User, 'id'>) => void;
   updateUser: (id: number, userData: Partial<User>) => void;
   deleteUser: (id: number) => void;
@@ -76,14 +78,35 @@ const initialUsers: User[] = [
 ];
 
 export function UserProvider({ children }: { children: ReactNode }) {
-  const [users, setUsers] = useState<User[]>(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : initialUsers;
-  });
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
-  }, [users]);
+    // Simulate loading from localStorage
+    setTimeout(() => {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        setUsers(stored ? JSON.parse(stored) : initialUsers);
+      } catch (err) {
+        setError("Failed to load user data.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }, 1000); // 1 second delay to simulate network request
+  }, []);
+
+  useEffect(() => {
+    if (!loading) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+      } catch (err) {
+        setError("Failed to save user data.");
+        console.error(err);
+      }
+    }
+  }, [users, loading]);
 
   const addUser = (userData: Omit<User, 'id'>) => {
     const newUser: User = {
@@ -108,7 +131,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <UserContext.Provider value={{ users, addUser, updateUser, deleteUser, getUserById }}>
+    <UserContext.Provider value={{ users, loading, error, addUser, updateUser, deleteUser, getUserById }}>
       {children}
     </UserContext.Provider>
   );
