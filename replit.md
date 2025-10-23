@@ -21,9 +21,11 @@ A modern user management application built with React, TypeScript, and Vite. The
 │   │   ├── Header.tsx       # Application header with logo and icons
 │   │   ├── UsersTable.tsx   # Main users table component
 │   │   └── AddUserModal.tsx # Modal for adding new users
+│   ├── context/
+│   │   └── UserContext.tsx  # Global state management with localStorage
 │   ├── pages/
 │   │   ├── Index.tsx        # Home page with users table
-│   │   ├── UserProfile.tsx  # Detailed user profile page
+│   │   ├── UserProfile.tsx  # Editable user profile page with tabs
 │   │   └── NotFound.tsx     # 404 page
 │   ├── lib/
 │   │   └── utils.ts         # Utility functions (cn helper)
@@ -41,13 +43,15 @@ A modern user management application built with React, TypeScript, and Vite. The
 ## Features
 1. **User List Management**: View all users in a clean table layout
 2. **Add Users**: Modal interface to add new users with name, email, and contact information
-3. **User Profiles**: Detailed user profile pages with tabs for:
-   - Basic information (personal details, address, contact)
-   - Education & skills
-   - Work experience
+3. **Editable User Profiles**: Detailed user profile pages with three editable tabs:
+   - **Basic Info**: Edit personal details, address, contact information
+   - **Education & Skills**: Edit school, degree, course, skills, and projects
+   - **Experience**: Edit work domains, sub-domains, LinkedIn, and resume information
 4. **Delete Users**: Remove users from the list
-5. **Responsive Design**: Clean, modern UI with custom purple brand colors
-6. **Client-side Routing**: Seamless navigation between pages
+5. **Data Persistence**: All user data persists across page refreshes using localStorage
+6. **Responsive Design**: Clean, modern UI with custom purple brand colors
+7. **Client-side Routing**: Seamless navigation between pages
+8. **State Management**: React Context API for global state management
 
 ## Configuration
 ### Vite Configuration
@@ -75,24 +79,40 @@ Configured for Replit's autoscale deployment:
 - **Run**: Serves the built application using Vite preview server
 
 ## Recent Changes
-- **October 23, 2025**: Initial project setup for Replit environment
+- **October 23, 2025**: Complete project setup and editable profile implementation
   - Created all configuration files (package.json, vite.config.ts, tsconfig.json)
   - Installed dependencies including React, Vite, TypeScript, Tailwind CSS
   - Configured Vite for Replit proxy with proper host settings
   - Set up development workflow on port 5000
   - Configured deployment for autoscale
+  - Implemented UserContext with localStorage for persistent data storage
+  - Made all three profile tabs (Basic Info, Education & Skills, Experience) fully editable
+  - Added proper form state management with separate edit states per tab
+  - Implemented save/cancel functionality with data validation
+  - Added unsaved changes protection when switching tabs
 
 ## Current State
 The application is fully functional with:
-- User list display with sample data (3 users)
-- Add user modal (functional UI)
-- User profile pages with multiple tabs
-- Client-side state management
+- User list display with persistent data (3 initial sample users)
+- Add user modal with form validation
+- Fully editable user profile pages with three tabs
+- Independent edit states for each tab section
+- Save and cancel functionality with data persistence
+- Unsaved changes protection
+- Toast notifications for user actions
+- Data persistence using localStorage
 - Responsive layout
 - All dependencies installed and configured
 
+## Data Management
+- **Storage**: Browser localStorage for persistent data across page refreshes
+- **State Management**: React Context API (UserContext) for global state
+- **Data Structure**: Comprehensive user object with nested properties for basic info, education, and experience
+- **CRUD Operations**: Full create, read, update, and delete functionality through context methods
+
 ## Notes
-- This is a frontend-only application with in-memory state
-- User data is stored in component state (not persisted)
-- Sample users are provided as initial data
-- The application uses modern React patterns with hooks and functional components
+- This is a frontend-only application with localStorage persistence
+- User data persists across browser sessions
+- All form state is synchronized with the context to prevent data loss
+- The application uses modern React patterns with hooks, context, and functional components
+- Each profile tab has independent edit state to prevent cross-tab interference
