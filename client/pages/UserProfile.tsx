@@ -1,16 +1,142 @@
-import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
-import { Copy, Pencil, ChevronDown } from "lucide-react";
+import { Copy, Pencil, ChevronDown, ArrowLeft, Save } from "lucide-react";
+import { useUsers } from "@/context/UserContext";
+import { useToast } from "@/hooks/use-toast";
 
 export default function UserProfile() {
   const { id } = useParams();
-  const [activeTab, setActiveTab] = useState("experience");
+  const navigate = useNavigate();
+  const { getUserById, updateUser } = useUsers();
+  const { toast } = useToast();
+  
+  const userId = parseInt(id || "0");
+  const user = getUserById(userId);
+  
+  const [activeTab, setActiveTab] = useState("basic");
+  const [isEditing, setIsEditing] = useState(false);
+  
+  const [basicInfo, setBasicInfo] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    yearOfBirth: "",
+    gender: "",
+    phoneNumber: "",
+    address: "",
+    pincode: "",
+    domicileState: "",
+    domicileCountry: "",
+    alternatePhoneNumber: "",
+  });
 
-  const userData = {
-    name: "Dave Richards",
-    email: "dave@mail.com",
-    phone: "+91 8332883854",
+  const [education, setEducation] = useState({
+    school: "",
+    degree: "",
+    course: "",
+    yearOfCompletion: "",
+    grade: "",
+    skills: "",
+    projects: "",
+  });
+
+  const [experience, setExperience] = useState({
+    domains: [
+      { domain: "", subDomain: "", experience: "" },
+      { domain: "", subDomain: "", experience: "" },
+    ],
+    linkedinUrl: "",
+    resumeUrl: "",
+  });
+
+  useEffect(() => {
+    if (user) {
+      setBasicInfo({
+        firstName: user.basicInfo?.firstName || "",
+        lastName: user.basicInfo?.lastName || "",
+        email: user.email || "",
+        yearOfBirth: user.basicInfo?.yearOfBirth || "",
+        gender: user.basicInfo?.gender || "",
+        phoneNumber: user.basicInfo?.phoneNumber || user.contact?.replace("+91 ", "") || "",
+        address: user.basicInfo?.address || "",
+        pincode: user.basicInfo?.pincode || "",
+        domicileState: user.basicInfo?.domicileState || "",
+        domicileCountry: user.basicInfo?.domicileCountry || "",
+        alternatePhoneNumber: user.basicInfo?.alternatePhoneNumber || "",
+      });
+      
+      setEducation({
+        school: user.education?.school || "",
+        degree: user.education?.degree || "",
+        course: user.education?.course || "",
+        yearOfCompletion: user.education?.yearOfCompletion || "",
+        grade: user.education?.grade || "",
+        skills: user.education?.skills || "",
+        projects: user.education?.projects || "",
+      });
+      
+      setExperience({
+        domains: user.experience?.domains || [
+          { domain: "", subDomain: "", experience: "" },
+          { domain: "", subDomain: "", experience: "" },
+        ],
+        linkedinUrl: user.experience?.linkedinUrl || "",
+        resumeUrl: user.experience?.resumeUrl || "",
+      });
+    }
+  }, [user]);
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-white flex flex-col">
+        <Header />
+        <div className="flex-1 flex items-center justify-center">
+          <p className="text-lg text-text-secondary">User not found</p>
+        </div>
+      </div>
+    );
+  }
+
+  const handleSaveBasicInfo = () => {
+    updateUser(userId, {
+      basicInfo: basicInfo,
+      name: `${basicInfo.firstName} ${basicInfo.lastName}`.trim() || user.name,
+      email: basicInfo.email,
+    });
+    setIsEditing(false);
+    toast({
+      title: "Success",
+      description: "Basic information updated successfully",
+    });
+  };
+
+  const handleSaveEducation = () => {
+    updateUser(userId, {
+      education: education,
+    });
+    setIsEditing(false);
+    toast({
+      title: "Success",
+      description: "Education & skills updated successfully",
+    });
+  };
+
+  const handleSaveExperience = () => {
+    updateUser(userId, {
+      experience: experience,
+    });
+    setIsEditing(false);
+    toast({
+      title: "Success",
+      description: "Experience updated successfully",
+    });
+  };
+
+  const handleDomainChange = (index: number, field: string, value: string) => {
+    const newDomains = [...experience.domains];
+    newDomains[index] = { ...newDomains[index], [field]: value };
+    setExperience({ ...experience, domains: newDomains });
   };
 
   return (
@@ -19,14 +145,15 @@ export default function UserProfile() {
       
       <main className="flex-1 flex flex-col items-center pt-6 pb-12">
         <div className="w-full max-w-[1216px] px-4">
-          <div className="relative bg-white rounded-md shadow-[0_2px_12px_0_rgba(54,89,226,0.12)] p-8 mb-6">
-            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none opacity-20">
-              <svg width="1090" height="205" viewBox="0 0 1090 205" className="absolute -left-32 -top-[500px]">
-                <path d="M249 102C249 206.934 163.934 292 59 292C-45.9341 292 -131 206.934 -131 102C-131 -2.9341 -45.9341 -88 59 -88C163.934 -88 249 -2.9341 249 102Z" fill="#FEFAFF"/>
-                <path d="M425 -437.5C722.958 -437.5 964.5 -195.958 964.5 102C964.5 399.958 722.958 641.5 425 641.5C127.042 641.5 -114.5 399.958 -114.5 102C-114.5 -195.958 127.042 -437.5 425 -437.5Z" stroke="#F0EBFF"/>
-              </svg>
-            </div>
+          <button
+            onClick={() => navigate("/")}
+            className="flex items-center gap-2 mb-4 text-sm text-text-secondary hover:text-primary transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Users
+          </button>
 
+          <div className="relative bg-white rounded-md shadow-[0_2px_12px_0_rgba(54,89,226,0.12)] p-8 mb-6">
             <div className="relative flex items-center gap-20">
               <div className="relative">
                 <div className="w-[165px] h-[165px] rounded-full bg-brand-50 border-4 border-white shadow-[0_2px_12px_0_rgba(54,89,226,0.12)] flex items-center justify-center">
@@ -35,19 +162,18 @@ export default function UserProfile() {
                     <path d="M49.5 19.5C49.5 26.9558 43.4558 33 36 33C28.5442 33 22.5 26.9558 22.5 19.5C22.5 12.0441 28.5442 5.99998 36 5.99998C43.4558 5.99998 49.5 12.0441 49.5 19.5Z" stroke="#6834FF" strokeWidth="2"/>
                   </svg>
                 </div>
-                <div className="absolute bottom-0 right-0 w-6 h-6 rounded-md bg-brand-50" />
               </div>
 
               <div className="flex-1 flex flex-col gap-1">
                 <h1 className="text-[28px] font-semibold text-text-primary leading-tight">
-                  {userData.name}
+                  {user.name}
                 </h1>
                 <div className="flex flex-col gap-3 mt-2">
                   <div className="flex items-center gap-2.5">
-                    <span className="text-lg text-text-secondary">{userData.email}</span>
+                    <span className="text-lg text-text-secondary">{user.email}</span>
                     <Copy className="w-6 h-6 text-[#97A1B2] cursor-pointer hover:opacity-70" />
                   </div>
-                  <span className="text-lg text-text-secondary">{userData.phone}</span>
+                  <span className="text-lg text-text-secondary">{user.contact || "+91 " + (user.basicInfo?.phoneNumber || "")}</span>
                 </div>
               </div>
             </div>
@@ -90,7 +216,10 @@ export default function UserProfile() {
             <div className="bg-white rounded-md shadow-[0_2px_12px_0_rgba(54,89,226,0.12)] p-4">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-text-primary">Basic Details</h2>
-                <button className="w-8 h-8 flex items-center justify-center rounded-md bg-brand-50 hover:bg-brand-75 transition-colors">
+                <button 
+                  onClick={() => setIsEditing(!isEditing)}
+                  className="w-8 h-8 flex items-center justify-center rounded-md bg-brand-50 hover:bg-brand-75 transition-colors"
+                >
                   <Pencil className="w-3.5 h-3.5 text-primary" />
                 </button>
               </div>
@@ -100,27 +229,33 @@ export default function UserProfile() {
                   <label className="text-xs text-text-secondary">First name</label>
                   <input
                     type="text"
-                    disabled
+                    disabled={!isEditing}
+                    value={basicInfo.firstName}
+                    onChange={(e) => setBasicInfo({ ...basicInfo, firstName: e.target.value })}
                     placeholder="e.g. John"
-                    className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-secondary"
+                    className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-primary disabled:bg-gray-50 disabled:text-text-secondary"
                   />
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-xs text-text-secondary">Last name</label>
                   <input
                     type="text"
-                    disabled
+                    disabled={!isEditing}
+                    value={basicInfo.lastName}
+                    onChange={(e) => setBasicInfo({ ...basicInfo, lastName: e.target.value })}
                     placeholder="e.g. Doe"
-                    className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-secondary"
+                    className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-primary disabled:bg-gray-50 disabled:text-text-secondary"
                   />
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-xs text-text-secondary">Email ID</label>
                   <input
                     type="email"
-                    disabled
+                    disabled={!isEditing}
+                    value={basicInfo.email}
+                    onChange={(e) => setBasicInfo({ ...basicInfo, email: e.target.value })}
                     placeholder="e.g. mrnobody@mail.com"
-                    className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-secondary"
+                    className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-primary disabled:bg-gray-50 disabled:text-text-secondary"
                   />
                 </div>
               </div>
@@ -128,60 +263,48 @@ export default function UserProfile() {
               <div className="grid grid-cols-3 gap-6 mb-4">
                 <div className="flex flex-col gap-1">
                   <label className="text-xs text-text-secondary">Year of birth</label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      disabled
-                      placeholder="YYYY"
-                      className="h-10 w-full px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-secondary pr-8"
-                    />
-                    <ChevronDown className="absolute right-3 top-3 w-4 h-4 text-[#97A1B2]" />
-                  </div>
+                  <input
+                    type="text"
+                    disabled={!isEditing}
+                    value={basicInfo.yearOfBirth}
+                    onChange={(e) => setBasicInfo({ ...basicInfo, yearOfBirth: e.target.value })}
+                    placeholder="YYYY"
+                    className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-primary disabled:bg-gray-50 disabled:text-text-secondary"
+                  />
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-xs text-text-secondary">Gender</label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      disabled
-                      placeholder="Select an option"
-                      className="h-10 w-full px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-secondary pr-8"
-                    />
-                    <ChevronDown className="absolute right-3 top-3 w-4 h-4 text-[#97A1B2]" />
-                  </div>
+                  <input
+                    type="text"
+                    disabled={!isEditing}
+                    value={basicInfo.gender}
+                    onChange={(e) => setBasicInfo({ ...basicInfo, gender: e.target.value })}
+                    placeholder="Select an option"
+                    className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-primary disabled:bg-gray-50 disabled:text-text-secondary"
+                  />
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-xs text-text-secondary">Phone number</label>
-                  <div className="flex items-center h-10 px-2.5 border border-gray-100 rounded-md bg-gray-50">
-                    <div className="flex items-center gap-2 pr-2 border-r border-[#D0C0FF]">
-                      <div className="w-[22px] h-4 rounded-sm border border-gray-100 overflow-hidden">
-                        <svg width="22" height="16" viewBox="0 0 22 16" fill="none">
-                          <rect width="22" height="16" rx="2" fill="white"/>
-                          <path fillRule="evenodd" clipRule="evenodd" d="M11 10.6666C12.4457 10.6666 13.619 9.47198 13.619 7.99998C13.619 6.52798 12.4457 5.33331 11 5.33331C9.55428 5.33331 8.38095 6.52798 8.38095 7.99998C8.38095 9.47198 9.55428 10.6666 11 10.6666ZM11 9.59998C11.8674 9.59998 12.5714 8.88318 12.5714 7.99998C12.5714 7.11678 11.8674 6.39998 11 6.39998C10.1326 6.39998 9.42857 7.11678 9.42857 7.99998C9.42857 8.88318 10.1326 9.59998 11 9.59998Z" fill="#1A47B8"/>
-                          <path d="M11 8.53334C11.2893 8.53334 11.5238 8.29456 11.5238 8.00001C11.5238 7.70546 11.2893 7.46667 11 7.46667C10.7107 7.46667 10.4762 7.70546 10.4762 8.00001C10.4762 8.29456 10.7107 8.53334 11 8.53334Z" fill="#1A47B8"/>
-                          <path fillRule="evenodd" clipRule="evenodd" d="M0 11H22V16H0V11Z" fill="#249F58"/>
-                          <path fillRule="evenodd" clipRule="evenodd" d="M0 0H22V5H0V0Z" fill="#FF6C2D"/>
-                        </svg>
-                      </div>
-                      <ChevronDown className="w-3 h-3 text-[#0B1331]" />
-                    </div>
-                    <input
-                      type="text"
-                      disabled
-                      value="8332883854"
-                      className="flex-1 px-2 text-sm bg-transparent text-text-secondary border-none outline-none"
-                    />
-                  </div>
+                  <input
+                    type="text"
+                    disabled={!isEditing}
+                    value={basicInfo.phoneNumber}
+                    onChange={(e) => setBasicInfo({ ...basicInfo, phoneNumber: e.target.value })}
+                    placeholder="8332883854"
+                    className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-primary disabled:bg-gray-50 disabled:text-text-secondary"
+                  />
                 </div>
               </div>
 
-              <div className="flex gap-6">
+              <div className="flex gap-6 mb-4">
                 <div className="flex-1 flex flex-col gap-1">
                   <label className="text-xs text-text-secondary">Address</label>
                   <textarea
-                    disabled
+                    disabled={!isEditing}
+                    value={basicInfo.address}
+                    onChange={(e) => setBasicInfo({ ...basicInfo, address: e.target.value })}
                     placeholder="Enter here"
-                    className="flex-1 p-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-secondary resize-none min-h-[120px]"
+                    className="flex-1 p-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-primary disabled:bg-gray-50 disabled:text-text-secondary resize-none min-h-[120px]"
                   />
                 </div>
                 <div className="flex-1 flex flex-col gap-4">
@@ -190,47 +313,67 @@ export default function UserProfile() {
                       <label className="text-xs text-text-secondary">Pincode</label>
                       <input
                         type="text"
-                        disabled
+                        disabled={!isEditing}
+                        value={basicInfo.pincode}
+                        onChange={(e) => setBasicInfo({ ...basicInfo, pincode: e.target.value })}
                         placeholder="Enter here"
-                        className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-secondary"
+                        className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-primary disabled:bg-gray-50 disabled:text-text-secondary"
                       />
                     </div>
                     <div className="flex flex-col gap-1">
                       <label className="text-xs text-text-secondary">Domicile state</label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          disabled
-                          placeholder="Select an option"
-                          className="h-10 w-full px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-secondary pr-8"
-                        />
-                        <ChevronDown className="absolute right-3 top-3 w-4 h-4 text-[#97A1B2]" />
-                      </div>
+                      <input
+                        type="text"
+                        disabled={!isEditing}
+                        value={basicInfo.domicileState}
+                        onChange={(e) => setBasicInfo({ ...basicInfo, domicileState: e.target.value })}
+                        placeholder="Select an option"
+                        className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-primary disabled:bg-gray-50 disabled:text-text-secondary"
+                      />
                     </div>
                   </div>
                   <div className="flex flex-col gap-1">
                     <label className="text-xs text-text-secondary">Domicile country</label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        disabled
-                        placeholder="Select an option"
-                        className="h-10 w-full px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-secondary pr-8"
-                      />
-                      <ChevronDown className="absolute right-3 top-3 w-4 h-4 text-[#97A1B2]" />
-                    </div>
+                    <input
+                      type="text"
+                      disabled={!isEditing}
+                      value={basicInfo.domicileCountry}
+                      onChange={(e) => setBasicInfo({ ...basicInfo, domicileCountry: e.target.value })}
+                      placeholder="Select an option"
+                      className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-primary disabled:bg-gray-50 disabled:text-text-secondary"
+                    />
                   </div>
                 </div>
                 <div className="flex-1 flex flex-col gap-1">
                   <label className="text-xs text-text-secondary">Alternate Phone no</label>
                   <input
                     type="text"
-                    disabled
+                    disabled={!isEditing}
+                    value={basicInfo.alternatePhoneNumber}
+                    onChange={(e) => setBasicInfo({ ...basicInfo, alternatePhoneNumber: e.target.value })}
                     placeholder="e.g. 9876543210"
-                    className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-secondary"
+                    className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-primary disabled:bg-gray-50 disabled:text-text-secondary"
                   />
                 </div>
               </div>
+
+              {isEditing && (
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setIsEditing(false)}
+                    className="h-10 px-4 rounded-md bg-gray-100 text-sm text-text-secondary hover:bg-gray-200 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveBasicInfo}
+                    className="h-10 px-4 rounded-md bg-primary text-sm text-white hover:opacity-90 transition-opacity flex items-center gap-2"
+                  >
+                    <Save className="w-4 h-4" />
+                    Save Changes
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
@@ -239,7 +382,10 @@ export default function UserProfile() {
               <div className="bg-white rounded-md shadow-[0_2px_12px_0_rgba(54,89,226,0.12)] p-4">
                 <div className="flex items-center justify-between mb-2">
                   <h2 className="text-lg font-semibold text-text-primary">Education Details</h2>
-                  <button className="w-8 h-8 flex items-center justify-center rounded-md bg-brand-50 hover:bg-brand-75 transition-colors">
+                  <button 
+                    onClick={() => setIsEditing(!isEditing)}
+                    className="w-8 h-8 flex items-center justify-center rounded-md bg-brand-50 hover:bg-brand-75 transition-colors"
+                  >
                     <Pencil className="w-3.5 h-3.5 text-primary" />
                   </button>
                 </div>
@@ -249,51 +395,58 @@ export default function UserProfile() {
                     <label className="text-xs text-text-secondary">School / College</label>
                     <input
                       type="text"
-                      disabled
+                      disabled={!isEditing}
+                      value={education.school}
+                      onChange={(e) => setEducation({ ...education, school: e.target.value })}
                       placeholder="e.g. Lincoln College"
-                      className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-secondary"
+                      className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-primary disabled:bg-gray-50 disabled:text-text-secondary"
                     />
                   </div>
                   <div className="flex-1 flex flex-col gap-1">
                     <label className="text-xs text-text-secondary">Highest degree or equivalent</label>
                     <input
                       type="text"
-                      disabled
+                      disabled={!isEditing}
+                      value={education.degree}
+                      onChange={(e) => setEducation({ ...education, degree: e.target.value })}
                       placeholder="e.g. Bachelors in Technology"
-                      className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-secondary"
+                      className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-primary disabled:bg-gray-50 disabled:text-text-secondary"
                     />
                   </div>
                 </div>
 
-                <div className="flex gap-6">
+                <div className="flex gap-6 mb-4">
                   <div className="flex-1 flex flex-col gap-1">
                     <label className="text-xs text-text-secondary">Course</label>
                     <input
                       type="text"
-                      disabled
+                      disabled={!isEditing}
+                      value={education.course}
+                      onChange={(e) => setEducation({ ...education, course: e.target.value })}
                       placeholder="e.g. Computer science engineering"
-                      className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-secondary"
+                      className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-primary disabled:bg-gray-50 disabled:text-text-secondary"
                     />
                   </div>
                   <div className="w-[259px] flex flex-col gap-1">
                     <label className="text-xs text-text-secondary">Year of completion</label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        disabled
-                        placeholder="YYYY"
-                        className="h-10 w-full px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-secondary pr-8"
-                      />
-                      <ChevronDown className="absolute right-3 top-3 w-4 h-4 text-[#97A1B2]" />
-                    </div>
+                    <input
+                      type="text"
+                      disabled={!isEditing}
+                      value={education.yearOfCompletion}
+                      onChange={(e) => setEducation({ ...education, yearOfCompletion: e.target.value })}
+                      placeholder="YYYY"
+                      className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-primary disabled:bg-gray-50 disabled:text-text-secondary"
+                    />
                   </div>
                   <div className="w-[259px] flex flex-col gap-1">
                     <label className="text-xs text-text-secondary">Grade</label>
                     <input
                       type="text"
-                      disabled
+                      disabled={!isEditing}
+                      value={education.grade}
+                      onChange={(e) => setEducation({ ...education, grade: e.target.value })}
                       placeholder="Enter here"
-                      className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-secondary"
+                      className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-primary disabled:bg-gray-50 disabled:text-text-secondary"
                     />
                   </div>
                 </div>
@@ -302,30 +455,49 @@ export default function UserProfile() {
               <div className="bg-white rounded-md shadow-[0_2px_12px_0_rgba(54,89,226,0.12)] p-4">
                 <div className="flex items-center justify-between mb-2">
                   <h2 className="text-lg font-semibold text-text-primary">Skills & Projects</h2>
-                  <button className="w-8 h-8 flex items-center justify-center rounded-md bg-brand-50 hover:bg-brand-75 transition-colors">
-                    <Pencil className="w-3.5 h-3.5 text-primary" />
-                  </button>
                 </div>
 
                 <div className="flex gap-6">
                   <div className="flex-1 flex flex-col gap-1">
                     <label className="text-xs text-text-secondary">Skills</label>
                     <textarea
-                      disabled
+                      disabled={!isEditing}
+                      value={education.skills}
+                      onChange={(e) => setEducation({ ...education, skills: e.target.value })}
                       placeholder="Enter here"
-                      className="h-[120px] p-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-secondary resize-none"
+                      className="h-[120px] p-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-primary disabled:bg-gray-50 disabled:text-text-secondary resize-none"
                     />
                   </div>
                   <div className="flex-1 flex flex-col gap-1">
                     <label className="text-xs text-text-secondary">Projects</label>
                     <textarea
-                      disabled
+                      disabled={!isEditing}
+                      value={education.projects}
+                      onChange={(e) => setEducation({ ...education, projects: e.target.value })}
                       placeholder="Enter here"
-                      className="h-[120px] p-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-secondary resize-none"
+                      className="h-[120px] p-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-primary disabled:bg-gray-50 disabled:text-text-secondary resize-none"
                     />
                   </div>
                 </div>
               </div>
+
+              {isEditing && (
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setIsEditing(false)}
+                    className="h-10 px-4 rounded-md bg-gray-100 text-sm text-text-secondary hover:bg-gray-200 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveEducation}
+                    className="h-10 px-4 rounded-md bg-primary text-sm text-white hover:opacity-90 transition-opacity flex items-center gap-2"
+                  >
+                    <Save className="w-4 h-4" />
+                    Save Changes
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
@@ -334,93 +506,60 @@ export default function UserProfile() {
               <div className="bg-white rounded-md shadow-[0_2px_12px_0_rgba(54,89,226,0.12)] p-4">
                 <div className="flex items-center justify-between mb-2">
                   <h2 className="text-lg font-semibold text-text-primary">Work Experience</h2>
-                  <button className="w-8 h-8 flex items-center justify-center rounded-md bg-brand-50 hover:bg-brand-75 transition-colors">
+                  <button 
+                    onClick={() => setIsEditing(!isEditing)}
+                    className="w-8 h-8 flex items-center justify-center rounded-md bg-brand-50 hover:bg-brand-75 transition-colors"
+                  >
                     <Pencil className="w-3.5 h-3.5 text-primary" />
                   </button>
                 </div>
 
                 <div className="flex flex-col gap-6">
-                  <div className="flex flex-col gap-3">
-                    <div className="flex flex-col gap-1">
-                      <label className="text-xs text-text-secondary">Domain</label>
-                      <input
-                        type="text"
-                        disabled
-                        placeholder="e.g. Technology"
-                        className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-secondary"
-                      />
-                    </div>
-
-                    <div className="flex items-start gap-0">
-                      <div className="flex items-center justify-center w-7 h-16">
-                        <div className="w-px h-full bg-[#B9C0CB]" />
+                  {experience.domains.map((domain, index) => (
+                    <div key={index} className="flex flex-col gap-3">
+                      <div className="flex flex-col gap-1">
+                        <label className="text-xs text-text-secondary">Domain</label>
+                        <input
+                          type="text"
+                          disabled={!isEditing}
+                          value={domain.domain}
+                          onChange={(e) => handleDomainChange(index, 'domain', e.target.value)}
+                          placeholder="e.g. Technology"
+                          className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-primary disabled:bg-gray-50 disabled:text-text-secondary"
+                        />
                       </div>
-                      <div className="flex-1 flex gap-6">
-                        <div className="flex-1 flex flex-col gap-1">
-                          <label className="text-xs text-text-secondary">Sub-domain</label>
-                          <input
-                            type="text"
-                            disabled
-                            placeholder="e.g. MERN Stack"
-                            className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-secondary"
-                          />
+
+                      <div className="flex items-start gap-0">
+                        <div className="flex items-center justify-center w-7 h-16">
+                          <div className="w-px h-full bg-[#B9C0CB]" />
                         </div>
-                        <div className="w-[348px] flex flex-col gap-1">
-                          <label className="text-xs text-text-secondary">Experience</label>
-                          <div className="relative">
+                        <div className="flex-1 flex gap-6">
+                          <div className="flex-1 flex flex-col gap-1">
+                            <label className="text-xs text-text-secondary">Sub-domain</label>
                             <input
                               type="text"
-                              disabled
-                              placeholder="Select an option"
-                              className="h-10 w-full px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-secondary pr-8"
+                              disabled={!isEditing}
+                              value={domain.subDomain}
+                              onChange={(e) => handleDomainChange(index, 'subDomain', e.target.value)}
+                              placeholder="e.g. MERN Stack"
+                              className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-primary disabled:bg-gray-50 disabled:text-text-secondary"
                             />
-                            <ChevronDown className="absolute right-3 top-3 w-4 h-4 text-[#97A1B2]" />
+                          </div>
+                          <div className="w-[348px] flex flex-col gap-1">
+                            <label className="text-xs text-text-secondary">Experience</label>
+                            <input
+                              type="text"
+                              disabled={!isEditing}
+                              value={domain.experience}
+                              onChange={(e) => handleDomainChange(index, 'experience', e.target.value)}
+                              placeholder="Select an option"
+                              className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-primary disabled:bg-gray-50 disabled:text-text-secondary"
+                            />
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-
-                  <div className="flex flex-col gap-3">
-                    <div className="flex flex-col gap-1">
-                      <label className="text-xs text-text-secondary">Domain</label>
-                      <input
-                        type="text"
-                        disabled
-                        placeholder="e.g. Technology"
-                        className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-secondary"
-                      />
-                    </div>
-
-                    <div className="flex items-start gap-0">
-                      <div className="flex items-center justify-center w-7 h-16">
-                        <div className="w-px h-full bg-[#B9C0CB]" />
-                      </div>
-                      <div className="flex-1 flex gap-6">
-                        <div className="flex-1 flex flex-col gap-1">
-                          <label className="text-xs text-text-secondary">Sub-domain</label>
-                          <input
-                            type="text"
-                            disabled
-                            placeholder="e.g. MERN Stack"
-                            className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-secondary"
-                          />
-                        </div>
-                        <div className="w-[348px] flex flex-col gap-1">
-                          <label className="text-xs text-text-secondary">Experience</label>
-                          <div className="relative">
-                            <input
-                              type="text"
-                              disabled
-                              placeholder="Select an option"
-                              className="h-10 w-full px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-secondary pr-8"
-                            />
-                            <ChevronDown className="absolute right-3 top-3 w-4 h-4 text-[#97A1B2]" />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
 
@@ -428,18 +567,17 @@ export default function UserProfile() {
                 <div className="flex-1 bg-white rounded-md shadow-[0_2px_12px_0_rgba(54,89,226,0.12)] p-4">
                   <div className="flex items-center justify-between mb-2">
                     <h2 className="text-lg font-semibold text-text-primary">LinkedIn</h2>
-                    <button className="w-8 h-8 flex items-center justify-center rounded-md bg-brand-50 hover:bg-brand-75 transition-colors">
-                      <Pencil className="w-3.5 h-3.5 text-primary" />
-                    </button>
                   </div>
 
                   <div className="flex flex-col gap-1">
                     <label className="text-xs text-text-secondary">Profile URL</label>
                     <input
                       type="text"
-                      disabled
+                      disabled={!isEditing}
+                      value={experience.linkedinUrl}
+                      onChange={(e) => setExperience({ ...experience, linkedinUrl: e.target.value })}
                       placeholder="linkedin.com/in/mrbean"
-                      className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-secondary"
+                      className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-primary disabled:bg-gray-50 disabled:text-text-secondary"
                     />
                   </div>
                 </div>
@@ -447,35 +585,41 @@ export default function UserProfile() {
                 <div className="flex-1 bg-white rounded-md shadow-[0_2px_12px_0_rgba(54,89,226,0.12)] p-4">
                   <div className="flex items-center justify-between mb-2">
                     <h2 className="text-lg font-semibold text-text-primary">Resume</h2>
-                    <button className="w-8 h-8 flex items-center justify-center rounded-md bg-brand-50 hover:bg-brand-75 transition-colors">
-                      <Pencil className="w-3.5 h-3.5 text-primary" />
-                    </button>
                   </div>
 
-                  <div className="flex items-center justify-between py-2">
-                    <div className="flex items-center gap-1">
-                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <path d="M6.0001 2H14.0001C14.6366 2 15.2471 2.25286 15.6972 2.70294C16.1472 3.15303 16.4001 3.76348 16.4001 4.4V15.6C16.4001 16.2365 16.1472 16.847 15.6972 17.2971C15.2471 17.7471 14.6366 18 14.0001 18H6.0001C5.36358 18 4.75313 17.7471 4.30304 17.2971C3.85295 16.847 3.6001 16.2365 3.6001 15.6V4.4C3.6001 3.76348 3.85295 3.15303 4.30304 2.70294C4.75313 2.25286 5.36358 2 6.0001 2ZM6.0001 3.6C5.78792 3.6 5.58444 3.68429 5.43441 3.83431C5.28438 3.98434 5.2001 4.18783 5.2001 4.4V15.6C5.2001 15.8122 5.28438 16.0157 5.43441 16.1657C5.58444 16.3157 5.78792 16.4 6.0001 16.4H14.0001C14.2123 16.4 14.4158 16.3157 14.5658 16.1657C14.7158 16.0157 14.8001 15.8122 14.8001 15.6V4.4C14.8001 4.18783 14.7158 3.98434 14.5658 3.83431C14.4158 3.68429 14.2123 3.6 14.0001 3.6H6.0001ZM7.6001 4.4H12.4001C12.6123 4.4 12.8158 4.48429 12.9658 4.63431C13.1158 4.78434 13.2001 4.98783 13.2001 5.2C13.2001 5.41217 13.1158 5.61566 12.9658 5.76569C12.8158 5.91571 12.6123 6 12.4001 6H7.6001C7.38792 6 7.18444 5.91571 7.03441 5.76569C6.88438 5.61566 6.8001 5.41217 6.8001 5.2C6.8001 4.98783 6.88438 4.78434 7.03441 4.63431C7.18444 4.48429 7.38792 4.4 7.6001 4.4Z" fill="#6834FF"/>
-                      </svg>
-                      <span className="text-sm text-text-primary">myresume.pdf</span>
-                    </div>
-                    <button className="h-8 px-4 rounded-md bg-brand-50 text-xs text-primary hover:bg-brand-75 transition-colors">
-                      View
-                    </button>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs text-text-secondary">Upload URL</label>
+                    <input
+                      type="text"
+                      disabled={!isEditing}
+                      value={experience.resumeUrl}
+                      onChange={(e) => setExperience({ ...experience, resumeUrl: e.target.value })}
+                      placeholder="https://example.com/resume.pdf"
+                      className="h-10 px-3 text-sm border border-gray-100 rounded-md bg-gray-50 text-text-primary disabled:bg-gray-50 disabled:text-text-secondary"
+                    />
                   </div>
                 </div>
               </div>
+
+              {isEditing && (
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setIsEditing(false)}
+                    className="h-10 px-4 rounded-md bg-gray-100 text-sm text-text-secondary hover:bg-gray-200 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveExperience}
+                    className="h-10 px-4 rounded-md bg-primary text-sm text-white hover:opacity-90 transition-opacity flex items-center gap-2"
+                  >
+                    <Save className="w-4 h-4" />
+                    Save Changes
+                  </button>
+                </div>
+              )}
             </div>
           )}
-
-          <div className="mt-6">
-            <Link
-              to="/"
-              className="inline-flex items-center text-sm text-primary hover:underline"
-            >
-              ← Back to Users
-            </Link>
-          </div>
         </div>
       </main>
     </div>
