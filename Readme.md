@@ -12,10 +12,10 @@ A responsive web application for managing user profiles, built as part of a fron
 - Pixel-perfect UI matching design specifications
 
 ## 🛠️ Technologies Used
-- **Frontend Framework:** React/Angular
-- **Styling:** Bootstrap/Tailwind CSS
+- **Frontend Framework:** React
+- **Styling:** Tailwind CSS
 - **Storage:** Browser Local Storage
-- **Design System:** Following Figma specifications
+- **Design System:** Following Figma specifications 
 
 ## 🎯 Project Requirements
 - Implemented all functionalities as shown in the Figma prototype
