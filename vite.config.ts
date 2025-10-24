@@ -12,6 +12,11 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5000,
+    hmr: {
+      protocol: 'wss',
+      host: undefined,
+      clientPort: 443,
+    },
   },
   build: {
     outDir: 'dist',

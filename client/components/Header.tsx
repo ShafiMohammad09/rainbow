@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { createPortal } from "react-dom";
 import { Bell, Headphones } from "lucide-react";
 import { Link } from "react-router-dom";
 import NotificationsPanel from "./NotificationsPanel";

@@ -1,6 +1,5 @@
-import { useState } from "react";
 import { createPortal } from "react-dom";
-import { X, CheckCheck } from "lucide-react";
+import { X } from "lucide-react";
 import { useNotifications } from "@/context/NotificationContext";
 
 interface NotificationsPanelProps {
@@ -23,19 +22,6 @@ export default function NotificationsPanel({ isOpen, onClose }: NotificationsPan
         return "bg-blue-50 border-blue-100";
       default:
         return "bg-gray-50 border-gray-100";
-    }
-  };
-
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case "success":
-        return "text-green-600";
-      case "error":
-        return "text-red-600";
-      case "info":
-        return "text-blue-600";
-      default:
-        return "text-gray-600";
     }
   };
 
